@@ -1,7 +1,10 @@
+#!/usr/bin/node
+
 const express = require('express');
 const server = express();
 require('dotenv').config();
 const routes = require('./routes/index');
+const auth = require('./routes/auth');
 // const cors = require('cors');
 // const { appendFile } = require('fs');
 // const http = require('http');
@@ -16,15 +19,17 @@ const DB = require('./db/connect');
 
 /* Configure cors */
 
-server.use((req, res) => {
+server.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  // next();
+  next();
 });
 
 // middlewares
 // server.use(cors);
 // server.use(routes);
+server.use(express.json());
+server.use('/auth', auth)
 server.use('/home', routes);
 
 /* routes */
