@@ -1,28 +1,54 @@
 const express = require('express');
-const { appendFile } = require('fs');
 const server = express();
-const http = require('http');
-const cors = require('cors');
 require('dotenv').config();
+const routes = require('./routes/index');
+// const cors = require('cors');
+// const { appendFile } = require('fs');
+// const http = require('http');
 
+/* PORT */
 
 const PORT = process.env.PORT || 8082;
 
+/* Connect to DB */
+
+const DB = require('./db/connect');
+
+/* Configure cors */
+
+server.use((req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  // next();
+});
+
 // middlewares
-server.use(cors);
+// server.use(cors);
+// server.use(routes);
+server.use('/home', routes);
 
+/* routes */
 
-// routes
 server.get('/', (req, res) => {
   res.send('home');
-})
+});
 
+/* Start Server */
 
-const start = (req, res) => {
-  console.log('Server is running on PORT ' + PORT);
+const start = async (req, res) => {
+  console.log('Establishing Connection . . .\n');
+
+  try {
+    await DB(process.env.MONGO_URI);
+    console.log('<DATABASE connected SUCCESSFULLY . . . > \n');
+
+    console.log('Server is running on PORT ' + PORT);
+  } catch (err) {
+    console.log(err);
+  }
 };
 
-server.listen(PORT, start())
+server.listen(PORT, start());
 // http.createServer(start()).listen(PORT);
 
 // console.log(process.env.PORT)
